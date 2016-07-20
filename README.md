@@ -13,6 +13,8 @@ Every print queue needs a PostScript Printer Description file. The one for the P
 Because of sandboxing, the only location that CUPS can save files to on macOS is /Users/Shared. This script creates a subfolder, Print and creates two print queues: one for PostScript, one for PDF. 
 If you have Adobe Distiller, the script will create subfolders called "In" and "Out". These can be used in conjunction with Distiller's Watched Folders. (.ps files go In, PDFs come Out.) PDFs from the Direct_PDF print queue also go to the Out folder. An Alias to the file destination folder is added to the Desktop.
 
+4. Package installer for OS X of the current 'build'.
+
 Improvements to any of the above are welcome.
 
 LICENSING
