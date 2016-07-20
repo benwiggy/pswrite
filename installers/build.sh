@@ -16,8 +16,8 @@ mkdir -p scripts
 cp "../Create Print queues.command" scripts/postinstall
 
 # Fixup permissions.
-chmod ugo+x root/usr/libexec/cups/backend/pdfwrite
-chmod ugo+x root/usr/libexec/cups/backend/pswrite
+chmod 0700 root/usr/libexec/cups/backend/pdfwrite
+chmod 0700 root/usr/libexec/cups/backend/pswrite
 
 chmod ugo+x scripts/postinstall
 
