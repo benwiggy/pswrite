@@ -1,0 +1,107 @@
+#!/bin/bash
+#
+# (c) Kurt Pfeifle, Danka Deutschland GmbH
+# with modifications and additions by Ben Byram-Wigfield
+#
+# This  CUPS backend allows you to "print to file".
+# It is designed to produce a PDF directly from OS X, with no intermediary PostScript
+# You may need to set CUPS to work with PDFs, either in the PPD or printers.config
+#
+# First install the CUPS backend file with the correct location and attributes:
+#
+# cp <this.file> /usr/libexec/cups/backend/pdfwrite;
+# sudo chown root /usr/libexex/cups/backend/pdfwrite;
+# chmod 0700 /usr/libexex/cups/backend/pdfwrite;
+#
+# You'll then need to restart CUPS:  sudo killall -HUP cupsd
+#
+# In OS X System PReferences > Print & Fax, create a printer. Click on "Advanced"
+# Specify "Type" as "Save PDF"
+# Set the URL to pdfwrite://path/to/folder, eg: pdfwrite://var/spool/pdf/
+#
+# Note that as of OS X 10.6, you cannot save anywhere unless everyone can write to it.
+# Access to other locations is defeated by the sandbox.
+# Good locations include /private/tmp/ or /var/
+#
+# Or you can do it the Unix way:
+# lpadmin -p fileprinter -v pdfwrite:var/spool/ -E -P /path/to/PPD
+# (you can leave aside the "-P" option to create a "raw" printqueue without filtering)
+
+# test for 5 or 6 parameters
+FILE=$6 || FILE="-";
+
+LOG=${DEVICE_URI#pdfwrite:}/../pdfwrite.log; export LOG ;
+JOBID=$1 ;
+USER=$2 ;
+TITLE=$3 ;
+COPIES=$4 ;
+OPTIONS=$5 ;
+PID=$$ ;
+echo ${FILE} >> ${LOG} ;
+echo ${JOBID} >> ${LOG} ;
+echo ${USER} >> ${LOG} ;
+echo ${TITLE} >> ${LOG} ;
+echo ${COPIES} >> ${LOG} ;
+echo ${OPTIONS} >> ${LOG} ;
+
+chown $USER ${LOG};
+chmod 744 ${LOG};
+
+# if there are no arguments: print the "I'm here" message for cupsd's probing
+if [ $# -eq 0 ]; then
+echo "direct pdfwrite \"Unknown\" \"Save PDF\""
+exit 0
+fi
+
+# in case of wrong number of arguments: print usage hint
+if [ $# -ne 5 -a $# -ne 6 ]; then
+echo ""
+echo "Usage: pdfwrite job-id user title copies options [file]"
+echo " example for device-URI: 'pdfwrite:/path/to/targetdir/'"
+echo "(this writes the printfile to disk at specified path)"
+echo ""
+echo "Install a printqueue with 'lpadmin -p <filewriter-printer-name> \
+-v pdfwrite:/</path/to/targetdir> -E [-P /path/to/PPD]"
+echo ""
+exit 1
+fi
+
+# Sanitize $TITLE -- swap any colons and slashes or backslashes in 
+# filename with underscore. (Spaces are allowed)
+TITLE=$(echo "$TITLE" | tr : _ | tr / _ | tr "\134" _ );
+# We should now have a sanitized ${TITLE} to use with less danger of 
+# screwing things up, should we print from a browser or some such.
+
+# Remove any extraneous .suffixes. 
+TITLE=$(expr "$TITLE" : '\(.*\)\.[^./]*$' \| "$TITLE" );
+
+# Create the complete file path where the job is to be saved.
+# This is taken from the device URI, so that you can use this backend 
+# multiple times, for various "pdfwrite" printers to different folders.
+
+# By default, we're going to use $TITLE as filename with .pdf as suffix. 
+# If there's an existing file with the same name, 
+# we append the job number as a unique ID.
+
+TARGETFILE="${DEVICE_URI#pdfwrite:}${TITLE}"".pdf";
+if [ -f "$TARGETFILE" ]; then
+TARGETFILE="${DEVICE_URI#pdfwrite:}${TITLE}-${JOBID}"".pdf"
+fi
+
+# OR, uncomment and modify the following line if you need the JOBTITLE, 
+# USERNAME, JOBID, DATE as part of the filename:
+# TARGETFILE="${DEVICE_URI#pdfwrite:}-${TITLE}-${JOBID}-${USER}"".pdf";
+
+# but check "accepting" status first...
+GREPSTRING="not accepting" ;
+if lpstat -a $TARGETFILE | grep "$GREPSTRING" &> /dev/null ; then
+echo "ERROR: printer ${DEVICE_URI#pdfwrite:} not accepting jobs."
+exit 1
+fi
+
+# Now, we output the PS and make the file owned by its user.
+cat $FILE > "$TARGETFILE"
+chown $USER "$TARGETFILE"
+chmod 744 "$TARGETFILE"
+
+exit 0
