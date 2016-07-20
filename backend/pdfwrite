@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# (c) Kurt Pfeifle, Danka Deutschland GmbH
-# with modifications and additions by Ben Byram-Wigfield
+# by Ben Byram-Wigfield, based on the excellent work by 
+# Kurt Pfeifle of Danka Deutschland GmbH, also
+# Michael Goffioul, PT Withington, Richard Bronosky, Steve Palm and Helge Blischke
 #
 # This  CUPS backend allows you to "print to file".
 # It is designed to produce a PDF directly from OS X, with no intermediary PostScript
@@ -19,12 +20,10 @@
 # Specify "Type" as "Save PDF"
 # Set the URL to pdfwrite://path/to/folder, eg: pdfwrite://var/spool/pdf/
 #
-# Note that as of OS X 10.6, you cannot save anywhere unless everyone can write to it.
-# Access to other locations is defeated by the sandbox.
-# Good locations include /private/tmp/ or /var/
+# Note that as of OS X 10.6, you can only save to /Users/Shared.
 #
 # Or you can do it the Unix way:
-# lpadmin -p fileprinter -v pdfwrite:var/spool/ -E -P /path/to/PPD
+# lpadmin -p fileprinter -v pdfwrite:/Users/Shared/Print/ -E -P /path/to/PPD
 # (you can leave aside the "-P" option to create a "raw" printqueue without filtering)
 
 # test for 5 or 6 parameters

@@ -17,12 +17,10 @@
 # Specify "Type" as "Save PostScript"
 # Set the URL to pswrite://path/to/folder/, eg: pswrite://var/spool/postscript/In/
 #
-# Note that as of OS X 10.6, you cannot save anywhere unless everyone can write to it.
-# Access to other locations is defeated by the sandbox.
-# Good locations include inside /var, specifically /var/spool.
+# Note that as of OS X 10.6, you can only save to /Users/Shared.
 #
 # Or you can do it the Unix way:
-# lpadmin -p PostScript -v pswrite:var/spool/ -E -P /path/to/PPD
+# lpadmin -p PostScript -v pswrite://Users/Shared/ -E -P /path/to/PPD
 # (you can leave aside the "-P" option to create a "raw" printqueue without filtering)
 
 # test for 5 or 6 parameters
