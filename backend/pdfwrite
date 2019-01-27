@@ -10,9 +10,9 @@
 #
 # First install the CUPS backend file with the correct location and attributes:
 #
-# cp <this.file> /usr/libexec/cups/backend/pdfwrite;
-# sudo chown root /usr/libexex/cups/backend/pdfwrite;
-# chmod 0700 /usr/libexex/cups/backend/pdfwrite;
+# cp <this.file> /usr/libexec/cups/backend/pdfwrite
+# sudo chown root /usr/libexex/cups/backend/pdfwrite
+# chmod 0700 /usr/libexex/cups/backend/pdfwrite
 #
 # You'll then need to restart CUPS:  sudo killall -HUP cupsd
 #
